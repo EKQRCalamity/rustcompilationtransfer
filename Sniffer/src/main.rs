@@ -10,14 +10,38 @@ use colored::Colorize;
 use std::env;
 use std::io::{self, BufRead};
 
+fn read_input(prompt: &str) -> String {
+    use std::io::{self, Write};
+    let mut buffer = String::new();
+    print!("{}", prompt);
+    io::stdout().flush().unwrap();
+    io::stdin().read_line(&mut buffer).unwrap();
+    buffer.trim().to_owned()
+}
+
 fn main() {
     let localaddress = "192.168.2.137";
-    let interface_name = "\\Device\\NPF_{BFA7FE10-7D79-4398-B8F3-C525672FDDE5}"; // Change this to the name of your WLAN interface
     let interfaces = datalink::interfaces();
-    let interface = interfaces.into_iter()
-        .filter(|iface| iface.name == interface_name)
-        .next()
-        .unwrap();
+    println!("Available network interfaces:");
+    for (i, iface) in interfaces.iter().enumerate() {
+        println!("{}: {} ({}), MAC: {:?}", i, iface.name, iface.description, iface.mac);
+    }
+
+    let interface = loop {
+        let input = read_input("Enter the name or index of the interface: ");
+        if let Ok(index) = input.parse::<usize>() {
+            if let Some(iface) = interfaces.get(index) {
+                break iface.clone();
+            }
+        } else if let Some(iface) = interfaces.iter().find(|&iface| iface.name == input.trim()) {
+            break iface.clone();
+        }
+        println!("Invalid input, please try again");
+    };
+    //let interface = interfaces.into_iter()
+    //    .filter(|iface| iface.name == interface_name)
+    //    .next()
+    //    .unwrap();
 
     let (mut tx, mut rx) = match datalink::channel(&interface, Default::default()) {
         Ok(datalink::Channel::Ethernet(tx, rx)) => (tx, rx),
