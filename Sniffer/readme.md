@@ -8,4 +8,4 @@ Shows UDP/TCP and should show ICMP Packages (Only tested on UDP and TCP)<br>
 Will show other Packets with same source ip and port and same destination ip and port when coming after each other as [n] after the packet<br>
 </p>
 
-<h3 align="center">Current builds wont work for you! Only proof of building.</h3>
+<h3 align="center">Current builds tested with Windows 10, Ubuntu 20.04.5 LTS (WLS) and Zorin OS (Ubuntu).</h3>
