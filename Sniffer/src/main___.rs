@@ -18,45 +18,45 @@ fn main() {
                 match packet.get_ethertype() {
                     Some(ethertype) => {
                         match packet.get_ethertype() {
-                            Some(ethertype) => {
-                                match ethertype {
-                                    pnet::packet::EtherTypes::Ipv4 => {
-                                        let ipv4_packet = Ipv4Packet::new(packet.payload()).unwrap();
-                                        let src = ipv4_packet.get_source();
-                                        let dst = ipv4_packet.get_destination();
-                                        match ipv4_packet.get_next_level_protocol() {
-                                            pnet::packet::ip::IpNextHeaderProtocols::Tcp => {
-                                                let tcp_packet = TcpPacket::new(ipv4_packet.payload()).unwrap();
-                                                println!(
-                                                    "TCP: {}:{} -> {}:{}",
-                                                    src,
-                                                    tcp_packet.get_source(),
-                                                    dst,
-                                                    tcp_packet.get_destination()
-                                                );
-                                            }
-                                            pnet::packet::ip::IpNextHeaderProtocols::Udp => {
-                                                let udp_packet = UdpPacket::new(ipv4_packet.payload()).unwrap();
-                                                println!(
-                                                    "UDP: {}:{} -> {}:{}",
-                                                    src,
-                                                    udp_packet.get_source(),
-                                                    dst,
-                                                    udp_packet.get_destination()
-                                                );
-                                            }
-                                            pnet::packet::ip::IpNextHeaderProtocols::Icmp => {
-                                                let icmp_packet = IcmpPacket::new(ipv4_packet.payload()).unwrap();
-                                                println!("ICMP: {} -> {}", src, dst);
-                                            }
-                                            _ => (),
-                                        }
+                    Some(ethertype) => {
+                        match ethertype {
+                            pnet::packet::EtherTypes::Ipv4 => {
+                                let ipv4_packet = Ipv4Packet::new(packet.payload()).unwrap();
+                                let src = ipv4_packet.get_source();
+                                let dst = ipv4_packet.get_destination();
+                                match ipv4_packet.get_next_level_protocol() {
+                                    pnet::packet::ip::IpNextHeaderProtocols::Tcp => {
+                                        let tcp_packet = TcpPacket::new(ipv4_packet.payload()).unwrap();
+                                        println!(
+                                            "TCP: {}:{} -> {}:{}",
+                                            src,
+                                            tcp_packet.get_source(),
+                                            dst,
+                                            tcp_packet.get_destination()
+                                        );
+                                    }
+                                    pnet::packet::ip::IpNextHeaderProtocols::Udp => {
+                                        let udp_packet = UdpPacket::new(ipv4_packet.payload()).unwrap();
+                                        println!(
+                                            "UDP: {}:{} -> {}:{}",
+                                            src,
+                                            udp_packet.get_source(),
+                                            dst,
+                                            udp_packet.get_destination()
+                                        );
+                                    }
+                                    pnet::packet::ip::IpNextHeaderProtocols::Icmp => {
+                                        let icmp_packet = IcmpPacket::new(ipv4_packet.payload()).unwrap();
+                                        println!("ICMP: {} -> {}", src, dst);
                                     }
                                     _ => (),
                                 }
                             }
-                            None => (),
+                            _ => (),
                         }
+                    }
+                    None => (),
+                }
                     }
                     None => (),
                 }

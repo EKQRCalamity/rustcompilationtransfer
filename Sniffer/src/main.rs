@@ -1,18 +1,15 @@
 extern crate pnet;
 
 use pnet::packet::{ipv4::Ipv4Packet, tcp::TcpPacket, udp::UdpPacket, icmp::IcmpPacket};
-use pnet::datalink::{self, NetworkInterface};
-use pnet::datalink::Channel::Ethernet;
-use pnet::packet::{Packet, MutablePacket, tcp};
-use pnet::packet::ethernet::{EthernetPacket, MutableEthernetPacket, EtherTypes};
+use pnet::datalink::{self};
+use pnet::packet::{Packet};
+use pnet::packet::ethernet::{EthernetPacket, EtherTypes};
 use colored::Colorize;
 
-use std::env;
-use std::io::{self, BufRead};
 
 fn read_input(prompt: &str) -> String {
     use std::io::{self, Write};
-    let mut buffer = String::new();
+    let mut buffer: String = String::new();
     print!("{}", prompt);
     io::stdout().flush().unwrap();
     io::stdin().read_line(&mut buffer).unwrap();
@@ -43,7 +40,7 @@ fn main() {
     //    .next()
     //    .unwrap();
 
-    let (mut tx, mut rx) = match datalink::channel(&interface, Default::default()) {
+    let (mut _tx, mut rx) = match datalink::channel(&interface, Default::default()) {
         Ok(datalink::Channel::Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unhandled channel type"),
         Err(e) => panic!("Failed to create datalink channel {}", e),
@@ -117,7 +114,29 @@ fn main() {
                             }
                             pnet::packet::ip::IpNextHeaderProtocols::Icmp => {
                                 let icmp_packet = IcmpPacket::new(ipv4_packet.payload()).unwrap();
-                                println!("ICMP: {} -> {}", src, dst);
+                                if format!{"{}", src} == localaddress {
+                                    if lastincomingaddress == format!{"{}", src} && lastoutgoingaddress == format!{"{}", dst} {
+                                        number += 1;
+                                        outputstr = format!("\rIncoming (->) ICMP Packet from: {} to {} | {} [{}]", src, dst, icmp_packet.get_checksum(), number);
+                                    } else {
+                                        number = 1;
+                                        outputstr = format!("\nIncoming (->) ICMP Packet from: {} to {} | {}", src, dst, icmp_packet.get_checksum());
+                                    }
+                                    incoming = true;
+                                    lastincomingaddress = format!{"{}", src};
+                                    lastoutgoingaddress = format!{"{}", dst};
+                                } else {
+                                    if lastincomingaddress == format!{"{}", src} && lastoutgoingaddress == format!{"{}", dst} {
+                                        number += 1;
+                                        outputstr = format!("\rOutgoing (<-) ICMP Packet from: {} to {} | {} [{}]", src, dst, icmp_packet.get_checksum(), number);
+                                    } else {
+                                        number = 1;
+                                        outputstr = format!("\nOutgoing (<-) ICMP Packet from: {} to {} | {}", src, dst, icmp_packet.get_checksum());
+                                    }
+                                    lastincomingaddress = format!{"{}", src};
+                                    lastoutgoingaddress = format!{"{}", dst};
+                                    
+                                }
                             }
                             _ => (),
                         }
